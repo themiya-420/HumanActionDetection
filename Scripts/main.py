@@ -7,6 +7,8 @@ from IPython.display import display, clear_output # type: ignore
 import PIL.Image # type: ignore
 from matplotlib import pyplot as plt # type: ignore
 
+#Media Pipe Variables
+
 mp_holistic = mp.solutions.holistic
 mp_drawing = mp.solutions.drawing_utils
 
@@ -18,6 +20,15 @@ def mediapipe_detection(image, model):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     return image, results
 
+# Drawing Landmarks on the image feed
+def draw_landmarks(image, results):
+    #mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACE_CONNECTIONS)
+    mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+    mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+
+
+
 cap = cv2.VideoCapture(0)
 with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
     while cap.isOpened():
@@ -28,9 +39,12 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         #make Detections
         image, results = mediapipe_detection(frame, holistic)
         print(results)
+
+        # Draw 
+        draw_landmarks(image, results)
     
         #showing the feed from the camera
-        cv2.imshow('Live Feed', frame)
+        cv2.imshow('Live Feed', image)
     
         #breaking the process
         if cv2.waitKey(1) & 0xFF == ord('q'):
