@@ -5,6 +5,7 @@ import os
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import LSTM, Dense # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
+from sklearn.metrics import multilabel_confusion_matrix, accuracy_score # type: ignore
 
 
 actions = np.array(['assault', 'stabbing', 'gun violence'])
@@ -50,11 +51,25 @@ model.add(Dense(64, activation = 'relu'))
 model.add(Dense(32, activation = 'relu'))
 model.add(Dense(actions.shape[0], activation = 'softmax'))
 
-model.compile(optimizer = 'Adam', loss = 'categorical_crossentropy', metrics=['categorical_accuracy'])
+#model.compile(optimizer = 'Adam', loss = 'categorical_crossentropy', metrics=['categorical_accuracy'])
 
-model.fit(x_train, y_train, epochs = 2000, callbacks = [tb_callback])
+#model.fit(x_train, y_train, epochs = 2000, callbacks = [tb_callback])
 
 
 # Save the trained model
 
-model.save('model.h5')
+#model.save('model.h5')
+
+
+# Evaluation of the Model
+
+model.load_weights('model.h5')
+
+yhat = model.predict(x_train)
+
+ytrue = np.argmax(y_train, axis=1).tolist()
+yhat = np.argmax(yhat, axis=1).tolist()
+
+print(multilabel_confusion_matrix(ytrue, yhat))
+
+print(accuracy_score(ytrue, yhat))
